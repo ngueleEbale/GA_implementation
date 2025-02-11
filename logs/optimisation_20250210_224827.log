@@ -1,0 +1,12 @@
+2025-02-10 22:48:27,974 - INFO - === DÉBUT DE L'OPTIMISATION DU RÉSEAU D'EBOLOWA ===
+2025-02-10 22:48:27,974 - INFO - Chargement du réseau...
+2025-02-10 22:48:27,989 - INFO - Réseau chargé: 179 nœuds, 196 conduites
+2025-02-10 22:48:27,989 - INFO - Démarrage de l'optimisation...
+2025-02-10 22:48:27,989 - ERROR - Erreur lors de l'optimisation: module 'deap.creator' has no attribute 'FitnessMin'
+2025-02-10 22:48:27,989 - ERROR - Erreur lors de l'optimisation : module 'deap.creator' has no attribute 'FitnessMin'
+Traceback (most recent call last):
+  File "/home/ramesu/Téléchargements/réseau nono/main.py", line 62, in main
+    resultats = optimiseur.executer_optimisation(callback_progression=progression)
+  File "/home/ramesu/Téléchargements/réseau nono/optimisation.py", line 304, in executer_optimisation
+    creator.create("Individual", list, fitness=creator.FitnessMin)
+AttributeError: module 'deap.creator' has no attribute 'FitnessMin'

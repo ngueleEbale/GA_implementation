@@ -1,0 +1,21 @@
+2025-02-10 22:15:40,030 - INFO - === DÉBUT DE L'OPTIMISATION DU RÉSEAU D'EBOLOWA ===
+2025-02-10 22:15:40,031 - INFO - Chargement du réseau...
+2025-02-10 22:15:40,046 - INFO - Réseau chargé: 179 nœuds, 196 conduites
+2025-02-10 22:15:40,046 - INFO - Démarrage de l'optimisation...
+2025-02-10 22:17:13,827 - ERROR - Erreur dans la génération 0: list indices must be integers or slices, not str
+2025-02-10 22:17:13,830 - ERROR - Erreur dans la génération 1: list indices must be integers or slices, not str
+2025-02-10 22:17:13,832 - ERROR - Erreur dans la génération 2: list indices must be integers or slices, not str
+2025-02-10 22:17:13,835 - ERROR - Erreur dans la génération 3: list indices must be integers or slices, not str
+2025-02-10 22:17:13,837 - ERROR - Erreur dans la génération 4: list indices must be integers or slices, not str
+2025-02-10 22:17:13,837 - ERROR - Aucune solution valide trouvée
+2025-02-10 22:17:13,837 - INFO - Génération des rapports et visualisations...
+2025-02-10 22:17:13,838 - INFO - Génération des visualisations...
+2025-02-10 22:17:14,106 - ERROR - Erreur lors de l'optimisation : 'NoneType' object is not iterable
+Traceback (most recent call last):
+  File "/home/ramesu/Téléchargements/réseau nono/main.py", line 74, in main
+    reporter.generer_visualisations()
+  File "/home/ramesu/Téléchargements/réseau nono/rapports.py", line 34, in generer_visualisations
+    self._plot_distribution_pressions()
+  File "/home/ramesu/Téléchargements/réseau nono/rapports.py", line 64, in _plot_distribution_pressions
+    for i, diametre in enumerate(self.resultats['meilleure_solution']):
+TypeError: 'NoneType' object is not iterable
