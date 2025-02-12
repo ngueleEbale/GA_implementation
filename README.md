@@ -54,13 +54,6 @@ pip install -r requirements.txt
 python nonoOptimizer.py
 ```
 
-### Configuration Personnalisée
-Modifier les constantes dans le fichier `config.py` :
-```python
-PRESSION_MIN = 204   # Pression minimale (m)
-PRESSION_MAX = 612   # Pression maximale (m)
-VITESSE_MIN = 0.5    # Vitesse minimale (m/s)
-VITESSE_MAX = 1.5    # Vitesse maximale (m/s)
 ```
 
 ## 📊 Structure des Résultats

@@ -1,0 +1,52 @@
+# Bibliothèques principales
+numpy>=1.21.0
+pandas>=1.3.0
+matplotlib>=3.4.0
+seaborn>=0.11.0
+
+# Optimisation et algorithmes génétiques
+deap>=1.3.1
+scipy>=1.7.0
+
+# Analyse de réseau hydraulique
+wntr>=0.4.0
+epanet>=2.2
+
+# Génération de rapports
+xlsxwriter>=3.0.0
+openpyxl>=3.0.0
+reportlab>=3.6.0
+
+# Visualisation avancée
+plotly>=5.3.0
+networkx>=2.6.0
+
+# Outils de développement
+pytest>=6.2.0
+black>=21.5b2
+flake8>=3.9.0
+isort>=5.9.0
+
+# Manipulation de données
+PyYAML>=5.4.0
+json5>=0.9.0
+
+# Gestion des fichiers
+pathlib>=1.0.1
+python-dotenv>=0.19.0
+
+# Performance et parallélisation
+joblib>=1.0.0
+multiprocess>=0.70.0
+
+# Interface utilisateur (optionnel)
+streamlit>=1.0.0
+dash>=2.0.0
+
+# Analyse statistique
+statsmodels>=0.13.0
+scikit-learn>=0.24.0
+
+# Gestion des versions
+setuptools>=57.0.0
+wheel>=0.37.0
