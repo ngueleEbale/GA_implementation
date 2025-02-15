@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Documentation sur les algorithmes génétiques (DEAP)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 1em;
+      line-height: 1.6;
+      background-color: #f9f9f9;
+    }
+    h1, h2, h3 {
+      color: #2c3e50;
+    }
+    pre, code {
+      background-color: #f7f7f7;
+      padding: 0.6em;
+      border-radius: 5px;
+    }
+    a {
+      color: #2980b9;
+    }
+    .references {
+      margin-top: 1em;
+      border-top: 1px solid #ccc;
+      padding-top: 1em;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Algorithmes Génétiques &amp; DEAP</h1>
+  <p>
+    Ce document décrit comment nous utilisons <strong>des algorithmes génétiques</strong> dans notre
+    projet pour optimiser le réseau hydraulique de Mvangan. Nous nous appuyons sur la
+    bibliothèque <strong>DEAP</strong> (Distributed Evolutionary Algorithms in Python),
+    qui fournit un ensemble d'outils modulaires pour concevoir et exécuter 
+    différents schémas d’algorithmes évolutionnaires.
+  </p>
+
+  <h2>1. Principe général des algorithmes génétiques</h2>
+  <p>
+    Un algorithme génétique (AG) est une méthode d’optimisation inspirée du processus de 
+    sélection naturelle. Chaque <em>solution potentielle</em> (individu) est codée dans 
+    une structure (par exemple, une liste de nombres correspondant à des paramètres).
+    Les principales étapes sont :
+  </p>
+  <ol>
+    <li><strong>Initialisation de la population</strong> : génération aléatoire 
+        de plusieurs individus.</li>
+    <li><strong>Évaluation de la fitness</strong> : calcul d’un score (ex. coûts + pénalités).</li>
+    <li><strong>Sélection</strong> : on retient les meilleurs individus (selon la fitness).</li>
+    <li><strong>Opérateurs génétiques</strong> :
+      <ul>
+        <li><em>Croisement</em> (crossover) : mélange aléatoire des caractéristiques de deux parents.</li>
+        <li><em>Mutation</em> : perturbation aléatoire d’un individu (ex. un gène).</li>
+      </ul>
+    </li>
+    <li><strong>Nouvelle génération</strong> : après plusieurs itérations, on obtient 
+        des solutions de mieux en mieux adaptées.</li>
+  </ol>
+  <p>
+    En répétant ce cycle, l’algorithme explore l’espace de solutions et converge vers des
+    régions optimales.
+  </p>
+
+  <h2>2. Usage de DEAP dans notre code</h2>
+  <p>
+    Dans notre projet, nous utilisons <strong>DEAP</strong> pour définir :
+  </p>
+  <ul>
+    <li>
+      <strong>Le type de fitness</strong> : 
+      <code>creator.create("FitnessMin", base.Fitness, weights=(-1.0,))</code> 
+      pour un mono‐objectif (minimisation), ou 
+      <code>creator.create("FitnessMulti", base.Fitness, weights=(-1.0, -1.0))</code> 
+      pour du multi‐objectif.
+    </li>
+    <li>
+      <strong>Les individus</strong> : via <code>creator.create("Individual", list, fitness=...)</code>. 
+      Un individu peut représenter, par exemple, un jeu de diamètres pour les conduites.
+    </li>
+    <li>
+      <strong>La population</strong> : initialisée par <code>tools.initRepeat</code> ou 
+      via une fonction personnelle générant aléatoirement les diamètres (ou autres paramètres).
+    </li>
+    <li>
+      <strong>Les opérateurs génétiques</strong> :
+      <ul>
+        <li>
+          Sélection : par exemple <code>tools.selTournament</code> ou 
+          <code>tools.selNSGA2</code> en multi‐objectif (NSGA‐II).
+        </li>
+        <li>
+          Croisement : par exemple <code>tools.cxTwoPoint</code>, 
+          <code>tools.cxUniform</code>, etc.
+        </li>
+        <li>
+          Mutation : par exemple <code>tools.mutGaussian</code> 
+          (pour modifier légèrement les valeurs numériques).
+        </li>
+      </ul>
+    </li>
+  </ul>
+  <p>
+    La gestion de l'évolution se fait via <code>algorithms.varAnd</code> ou 
+    <code>algorithms.eaSimple</code>, ou encore manuellement (sélection, reproduction, etc.).
+  </p>
+
+  <h2>3. Algorithmes utilisés</h2>
+  <h3>3.1 Mono‐objectif</h3>
+  <p>
+    Dans l'approche <em>mono‐objectif</em>, on utilise <code>creator.FitnessMin</code>
+    et <code>weights=(-1.0,)</code>. On définit la fonction 
+    <code>evaluer_solution</code> qui calcule un score unique 
+    (ex. coût + pénalités de pression).
+    Nous appliquons ensuite une évolution simple :
+    <ul>
+      <li>
+        Sélection par <code>tools.selTournament</code> (paramètre <code>tournsize=3</code>)
+      </li>
+      <li>
+        Croisement <code>tools.cxTwoPoint</code>
+      </li>
+      <li>
+        Mutation <code>tools.mutGaussian</code> (avec <code>mu=0</code>, <code>sigma=1</code>, <code>indpb=0.1</code>)
+      </li>
+    </ul>
+  </p>
+
+  <h3>3.2 Multi‐objectif (NSGA‐II)</h3>
+  <p>
+    En mode <em>multi‐objectif</em>, nous avons deux objectifs : 
+    <strong>minimiser le coût total et minimiser l’énergie</strong>.
+    Nous utilisons <code>creator.FitnessMulti</code> 
+    avec <code>weights=(-1.0, -1.0)</code>.  
+    Pour la sélection, nous recourons à <code>tools.selNSGA2</code>, 
+    qui implémente l’algorithme NSGA‐II (Non-dominated Sorting Genetic Algorithm II).
+    Celui‐ci construit et maintient une <em>archive</em> des solutions du front de Pareto.
+  </p>
+  <p>
+    Après un certain nombre de générations, le <em>front non dominé</em> 
+    (ensemble de solutions Pareto‐optimales) est sauvegardé et peut être tracé
+    (par exemple un graphe Coût vs Énergie).
+  </p>
+
+  <h2>4. Utilisation dans notre projet</h2>
+  <p>
+    Le code <code>optimisation.py</code> expose, entre autres, deux méthodes principales :
+  </p>
+  <ul>
+    <li>
+      <code>executer_optimisation</code> (mono‐objectif) : 
+      création de la population, application répétée 
+      de <em>varAnd</em> (croisement/mutation), sélection par tournoi, 
+      et calcul d’une fitness unique (coût + pénalités).
+    </li>
+    <li>
+      <code>executer_optimisation_multi</code> (multi‐objectif) : 
+      création d’une population, usage de <code>selNSGA2</code> pour la sélection, 
+      et évaluation sur deux objectifs (coût et énergie). 
+      On stocke la liste des solutions du front de Pareto dans 
+      <code>self.solutions_pareto</code>.
+    </li>
+  </ul>
+
+  <h2>5. Liens et références</h2>
+  <div class="references">
+    <ul>
+      <li>
+        <strong>Site officiel DEAP</strong> : 
+        <a href="https://deap.readthedocs.io/en/master" target="_blank">
+          https://deap.readthedocs.io/en/master
+        </a>
+      </li>
+      <li>
+        <strong>Guide sur les algorithmes génétiques</strong> : 
+        <a href="https://en.wikipedia.org/wiki/Genetic_algorithm" target="_blank">
+          Wikipédia (EN)
+        </a>
+      </li>
+      <li>
+        <strong>NSGA-II (principes théoriques)</strong> :
+        <a href="https://ieeexplore.ieee.org/document/996017" target="_blank">
+          https://ieeexplore.ieee.org/document/996017
+        </a>
+        (article original de Deb et al.)
+      </li>
+      <li>
+        <strong>Documentation Python</strong> : 
+        <a href="https://docs.python.org/3" target="_blank">
+          https://docs.python.org/3
+        </a>
+      </li>
+      <li>
+        <strong>Exemples DEAP multi‐objectif</strong> :
+        <a href="https://github.com/DEAP/deap/blob/master/examples/ga/nsga2.py" target="_blank">
+          GitHub DEAP
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <p>
+    Nous recommandons également de consulter divers tutoriels en ligne sur la mise en œuvre 
+    d’algorithmes génétiques, et de comparer d’autres bibliothèques 
+    (ex. <em>PyGAD</em>, <em>Inspyred</em>) si nécessaire.
+  </p>
+
+  <hr>
+  <p>
+    <em>Fin du document.</em>
+  </p>
+</body>
+</html>

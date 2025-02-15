@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Guide d'Installation - Optimisation Réseau Ebolowa</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .code-block {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .note {
+            background-color: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin: 15px 0;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        h3 {
+            color: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <h1>Guide d'Installation - Optimisation Réseau Ebolowa</h1>
+
+    <h2>Installation sous Windows</h2>
+
+    <h3>1. Installation de Python 3.11</h3>
+    <ul>
+        <li>Téléchargez Python 3.11 depuis <a href="https://www.python.org/downloads/release/python-3110/">python.org</a></li>
+        <li>Sélectionnez "Windows installer (64-bit)"</li>
+        <li>Exécutez l'installateur</li>
+        <li>⚠️ Important : Cochez "Add Python 3.11 to PATH"</li>
+    </ul>
+
+    <h3>2. Création de l'environnement virtuel</h3>
+    <div class="code-block">
+        # Ouvrez cmd et créez un dossier pour votre projet<br>
+        mkdir ebolowa_optim<br>
+        cd ebolowa_optim<br>
+        <br>
+        # Créez l'environnement virtuel<br>
+        python -m venv venv<br>
+        <br>
+        # Activez l'environnement virtuel<br>
+        venv\Scripts\activate
+    </div>
+
+    <h3>3. Installation des packages</h3>
+    <div class="code-block">
+        # Mise à jour de pip<br>
+        python -m pip install --upgrade pip<br>
+        <br>
+        # Installation des dépendances<br>
+        pip install numpy pandas matplotlib seaborn deap wntr xlsxwriter
+    </div>
+
+    <h2>Installation sous Linux</h2>
+
+    <h3>1. Installation de Python 3.11</h3>
+    <div class="code-block">
+        # Ubuntu/Debian<br>
+        sudo apt update<br>
+        sudo apt install python3.11 python3.11-venv<br>
+        <br>
+        # Fedora<br>
+        sudo dnf install python3.11 python3.11-devel
+    </div>
+
+    <h3>2. Création de l'environnement virtuel</h3>
+    <div class="code-block">
+        # Créez un dossier pour votre projet<br>
+        mkdir ebolowa_optim<br>
+        cd ebolowa_optim<br>
+        <br>
+        # Créez l'environnement virtuel<br>
+        python3.11 -m venv venv<br>
+        <br>
+        # Activez l'environnement virtuel<br>
+        source venv/bin/activate
+    </div>
+
+    <h3>3. Installation des packages</h3>
+    <div class="code-block">
+        # Mise à jour de pip<br>
+        pip install --upgrade pip<br>
+        <br>
+        # Installation des dépendances système<br>
+        # Ubuntu/Debian<br>
+        sudo apt install build-essential python3-dev python3-tk<br>
+        <br>
+        # Fedora<br>
+        sudo dnf groupinstall "Development Tools"<br>
+        sudo dnf install python3-tkinter<br>
+        <br>
+        # Installation des dépendances Python<br>
+        pip install numpy pandas matplotlib seaborn deap wntr xlsxwriter
+    </div>
+
+    <h2>Configuration du Projet</h2>
+    <div class="code-block">
+        # Créez les dossiers requis<br>
+        mkdir visualisation rapports<br>
+        <br>
+        # Créez les fichiers Python<br>
+        # Copiez le contenu fourni dans :<br>
+        # - code1.py<br>
+        # - gui.py<br>
+        # - optimisation.py<br>
+        # - optimisation_cli.py
+    </div>
+
+    <h2>Exécution</h2>
+    <div class="code-block">
+        # Pour l'interface graphique<br>
+        python gui.py<br>
+        <br>
+        # Pour la version CLI<br>
+        python optimisation_cli.py
+    </div>
+
+    <h2>Vérification de l'Installation</h2>
+    <div class="code-block">
+        python -c "import numpy; import pandas; import matplotlib; import seaborn; import deap; import wntr; print('Tout est bien installé!')"
+    </div>
+
+    <div class="note">
+        <strong>Notes importantes :</strong>
+        <ul>
+            <li>Assurez-vous que le fichier 'ebolowa_reseau.inp' est présent dans le dossier du projet</li>
+            <li>Les dossiers 'visualisation' et 'rapports' doivent avoir les permissions d'écriture appropriées</li>
+            <li>Si vous rencontrez des erreurs, vérifiez les messages d'erreur pour les versions des packages</li>
+            <li>Sur Windows, redémarrez votre terminal après l'installation de Python</li>
+        </ul>
+    </div>
+
+    <div class="note">
+        <strong>Résolution des problèmes courants :</strong>
+        <ul>
+            <li>Si Python n'est pas reconnu : vérifiez que Python est bien dans le PATH</li>
+            <li>Si un package ne s'installe pas : essayez d'installer ses dépendances système d'abord</li>
+            <li>Pour les erreurs tkinter : assurez-vous que python3-tk est installé</li>
+        </ul>
+    </div>
+</body>
+</html>
