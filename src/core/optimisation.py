@@ -1,21 +1,68 @@
-# optimisation.py
-
 # -*- coding: utf-8 -*-
+"""
+Module d'Optimisation de Réseaux Hydrauliques par Algorithmes Génétiques
+=========================================================================
 
+Ce module implémente un système complet d'optimisation pour réseaux hydrauliques
+utilisant des algorithmes génétiques mono et multi-objectif. Il permet d'optimiser
+le dimensionnement des conduites d'un réseau de distribution d'eau en respectant
+les contraintes hydrauliques et en minimisant les objectifs définis.
+
+Le système utilise WNTR (Water Network Tool for Resilience) pour la simulation
+hydraulique et DEAP (Distributed Evolutionary Algorithms in Python) pour
+l'implémentation des algorithmes génétiques.
+
+Fonctionnalités principales:
+---------------------------
+- Optimisation mono-objectif (minimisation des pertes de charge)
+- Optimisation multi-objectif NSGA-II (pertes, vitesses, pressions)
+- Génération automatique de visualisations et rapports
+- Sauvegarde et reprise d'optimisations
+- Gestion robuste des encodages de fichiers INP
+- Export de réseaux optimisés au format EPANET
+
+Classes principales:
+-------------------
+- OptimisationReseau: Classe principale d'optimisation
+- AnalyseEconomique: Analyse économique des solutions (legacy)
+
+Author: Équipe d'Optimisation Hydraulique
+Version: 3.0
+Date: 2025
+License: MIT
+
+Dependencies:
+------------
+- wntr: Simulation hydraulique EPANET
+- deap: Algorithmes évolutionnaires
+- numpy, pandas: Calculs numériques et manipulation de données
+- matplotlib, seaborn: Visualisation
+- json: Sérialisation des résultats
+"""
+
+# Imports système et calculs scientifiques
 import copy
-import wntr
+import os
+import json
+import random
+import logging
+import tempfile
+import shutil
+from datetime import datetime
+
+# Imports calculs scientifiques et visualisation
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from deap import base, creator, tools, algorithms
-import json
-import random
-from datetime import datetime
 import matplotlib.collections as mc
 import matplotlib.colors as mcolors
-import os
-import logging
+
+# Imports spécialisés
+import wntr  # Water Network Tool for Resilience - Simulation hydraulique
+from deap import base, creator, tools, algorithms  # Algorithmes génétiques
+
+# Configuration locale
 from . import config
 
 # ------------------------------------------------------------------------
@@ -52,14 +99,99 @@ os.makedirs("rapports", exist_ok=True)
 # Diamètres disponibles (mm)
 DIAMETRES_DISPONIBLES = config.DIAMETRES_DISPONIBLES
 
-# ------------------------------------------------------------------------
+# ========================================================================
 # CLASSE PRINCIPALE D'OPTIMISATION
-# ------------------------------------------------------------------------
+# ========================================================================
+
 class OptimisationReseau:
+    """
+    Classe Principale d'Optimisation de Réseaux Hydrauliques
+    ========================================================
+    
+    Cette classe implémente un système complet d'optimisation pour réseaux
+    hydrauliques utilisant des algorithmes génétiques. Elle permet d'optimiser
+    le dimensionnement des conduites en minimisant différents objectifs tout
+    en respectant les contraintes hydrauliques.
+    
+    Fonctionnalités:
+    ---------------
+    - Optimisation mono-objectif (pertes de charge)
+    - Optimisation multi-objectif NSGA-II (pertes, vitesses, pressions)
+    - Simulation hydraulique via WNTR/EPANET
+    - Génération automatique de visualisations et rapports
+    - Sauvegarde/reprise d'optimisations
+    - Export de réseaux optimisés
+    
+    Attributs principaux:
+    --------------------
+    - reseau: Modèle WNTR du réseau hydraulique
+    - fichier_inp: Chemin vers le fichier INP source
+    - diametres_initiaux: Diamètres d'origine des conduites
+    - meilleure_solution: Solution optimale mono-objectif
+    - solutions_pareto: Ensemble des solutions Pareto (multi-objectif)
+    - historique_fitness: Historique de convergence
+    
+    Exemple d'utilisation:
+    ---------------------
+    >>> opt = OptimisationReseau("reseau.inp")
+    >>> opt.executer_optimisation()  # Mono-objectif
+    >>> opt.executer_optimisation_multi()  # Multi-objectif
+    >>> opt.generer_rapports()
+    >>> opt.generer_fichier_inp_optimise()
+    """
+    
     def __init__(self, fichier_inp):
         """
-        Initialisation de la classe, chargement du réseau
-        et sauvegarde des diamètres initiaux.
+        Initialise le système d'optimisation avec un réseau hydraulique.
+        
+        Cette méthode charge un fichier INP EPANET, initialise les structures
+        de données nécessaires et configure le système de logging. Elle gère
+        automatiquement les problèmes d'encodage des fichiers INP.
+        
+        Processus d'initialisation:
+        --------------------------
+        1. Chargement du fichier INP avec gestion d'encodage robuste
+        2. Extraction et sauvegarde des diamètres initiaux
+        3. Validation de la cohérence du réseau
+        4. Initialisation des structures de données d'optimisation
+        
+        Parameters:
+        -----------
+        fichier_inp : str
+            Chemin vers le fichier INP EPANET contenant la définition du réseau.
+            Le fichier doit contenir au minimum les sections [JUNCTIONS], 
+            [PIPES], [RESERVOIRS] ou [TANKS], et [OPTIONS].
+        
+        Raises:
+        -------
+        FileNotFoundError
+            Si le fichier INP spécifié n'existe pas
+        UnicodeDecodeError
+            Si aucun encodage supporté ne permet de lire le fichier
+        ValueError
+            Si le fichier INP est mal formé ou incomplet
+        wntr.network.io.InvalidNetworkError
+            Si le réseau contient des erreurs de définition
+            
+        Notes:
+        ------
+        - Supporte les encodages: UTF-8, Latin-1, CP1252, ISO-8859-1
+        - Les diamètres sont automatiquement convertis en mm pour l'optimisation
+        - Un fichier temporaire UTF-8 est créé si nécessaire puis supprimé
+        - La validation hydraulique est effectuée automatiquement
+        
+        Examples:
+        ---------
+        >>> # Initialisation basique
+        >>> opt = OptimisationReseau("mon_reseau.inp")
+        
+        >>> # Avec gestion d'erreur
+        >>> try:
+        ...     opt = OptimisationReseau("reseau_complexe.inp")
+        ... except FileNotFoundError:
+        ...     print("Fichier INP introuvable")
+        ... except ValueError as e:
+        ...     print(f"Erreur de format: {e}")
         """
         try:
             print("Chargement du réseau hydraulique...")
@@ -181,12 +313,72 @@ class OptimisationReseau:
                 individual[i] = random.choice(DIAMETRES_DISPONIBLES)
         return individual,
 
-    # --------------------------------------------------------------------
-    # ÉVALUATION MONO‐OBJECTIF
-    # --------------------------------------------------------------------
+    # ====================================================================
+    # ÉVALUATION MONO-OBJECTIF - FONCTION FITNESS PRINCIPALE
+    # ====================================================================
+    
     def evaluer_solution(self, solution):
         """
-        Score = pertes de charge totales + pénalités (pressions et vitesses hors bornes).
+        Évalue une solution d'optimisation mono-objectif en calculant un score composite.
+        
+        Cette fonction constitue le cœur de l'algorithme génétique mono-objectif.
+        Elle simule le comportement hydraulique du réseau avec les diamètres proposés
+        et calcule un score basé sur les pertes de charge totales augmentées de
+        pénalités pour les contraintes violées.
+        
+        Formule de score:
+        ----------------
+        Score = Σ(Pertes_de_charge) + Σ(Pénalités_contraintes)
+        
+        Où:
+        - Pertes_de_charge: Somme des pertes de charge de toutes les conduites (m)
+        - Pénalités_contraintes: Pénalités pour pressions et vitesses hors limites
+        
+        Processus d'évaluation:
+        ----------------------
+        1. Application des diamètres proposés au réseau
+        2. Simulation hydraulique via EPANET
+        3. Calcul des pertes de charge totales
+        4. Calcul des pénalités pour contraintes violées
+        5. Restauration des diamètres initiaux
+        6. Retour du score composite
+        
+        Parameters:
+        -----------
+        solution : list of float
+            Liste des diamètres en mm pour chaque conduite du réseau.
+            La longueur doit correspondre au nombre de conduites.
+            Chaque diamètre doit être dans DIAMETRES_DISPONIBLES.
+        
+        Returns:
+        --------
+        tuple of float
+            Tuple contenant le score d'évaluation. Plus le score est faible,
+            meilleure est la solution. Format requis par DEAP.
+        
+        Raises:
+        -------
+        Exception
+            En cas d'erreur de simulation hydraulique ou de calcul.
+            Retourne (inf,) pour signaler une solution invalide.
+            
+        Notes:
+        ------
+        - Les diamètres sont convertis de mm vers m pour WNTR
+        - La simulation utilise le solveur EPANET intégré à WNTR
+        - Les diamètres initiaux sont restaurés après chaque évaluation
+        - Les erreurs de simulation invalident automatiquement la solution
+        
+        Formules hydrauliques utilisées:
+        --------------------------------
+        - Pertes de charge: Équation de Hazen-Williams ou Darcy-Weisbach
+        - Pénalités: Fonction quadratique des dépassements de contraintes
+        
+        Examples:
+        ---------
+        >>> solution = [110, 160, 200, 110]  # Diamètres en mm
+        >>> score = opt.evaluer_solution(solution)
+        >>> print(f"Score: {score[0]:.2f}")
         """
         try:
             # Appliquer les diamètres
@@ -254,51 +446,181 @@ class OptimisationReseau:
             logger.error(f"Erreur evaluer_solution_multi : {e}")
             return (float('inf'), float('inf'), float('inf'))
 
-    # --------------------------------------------------------------------
-    # CALCUL DES PERTES DE CHARGE
-    # --------------------------------------------------------------------
+    # ====================================================================
+    # CALCUL DES OBJECTIFS D'OPTIMISATION - MÉTRIQUES HYDRAULIQUES
+    # ====================================================================
+    
     def calculer_pertes_total(self, resultats):
-        """Somme des pertes de charge totales du réseau"""
+        """
+        Calcule la somme des pertes de charge totales du réseau hydraulique.
+        
+        Cette méthode constitue l'objectif principal de l'optimisation mono-objectif.
+        Elle calcule la somme des pertes de charge de toutes les conduites du réseau
+        sur toute la période de simulation.
+        
+        Formule hydraulique:
+        -------------------
+        Pertes_totales = Σ|ΔH_i| pour toutes les conduites i
+        
+        Où ΔH_i est la perte de charge dans la conduite i (m), calculée par EPANET
+        selon l'équation de Hazen-Williams ou Darcy-Weisbach:
+        
+        Hazen-Williams: ΔH = 10.67 × L × (Q^1.852) / (C^1.852 × D^4.87)
+        Où: L=longueur(m), Q=débit(m³/s), C=coefficient rugosité, D=diamètre(m)
+        
+        Parameters:
+        -----------
+        resultats : wntr.sim.results.SimulationResults
+            Résultats de simulation WNTR contenant les données hydrauliques
+            temporelles pour tous les éléments du réseau.
+        
+        Returns:
+        --------
+        float
+            Somme des valeurs absolues des pertes de charge (m).
+            Plus cette valeur est faible, plus le réseau est efficace.
+        
+        Notes:
+        ------
+        - Utilise la valeur absolue pour gérer les écoulements bidirectionnels
+        - Les pertes sont calculées par EPANET selon la formule configurée
+        - Retourne inf en cas d'erreur de simulation pour invalider la solution
+        
+        Examples:
+        ---------
+        >>> resultats = sim.run_sim()
+        >>> pertes = opt.calculer_pertes_total(resultats)
+        >>> print(f"Pertes totales: {pertes:.2f} m")
+        """
         try:
+            # Extraction des pertes de charge depuis les résultats WNTR
+            # Format: [temps, conduites] - valeurs en mètres
             headloss = resultats.link['headloss'].values
+            
+            # Somme des valeurs absolues pour toutes les conduites et tous les pas de temps
             pertes_total = np.sum(np.abs(headloss))
+            
             return pertes_total
         except Exception as e:
             logger.error(f"Erreur calcul pertes total : {e}")
-            return float('inf')
+            return float('inf')  # Solution invalide
 
-    # --------------------------------------------------------------------
-    # CALCUL DES OBJECTIFS MULTI-OBJECTIFS
-    # --------------------------------------------------------------------
+    # ====================================================================
+    # CALCUL DES OBJECTIFS MULTI-OBJECTIFS - MÉTRIQUES COMPLÉMENTAIRES
+    # ====================================================================
+    
     def calculer_vitesses_moyennes(self, resultats):
-        """Calcul de la moyenne des vitesses d'écoulement"""
+        """
+        Calcule la vitesse d'écoulement moyenne pondérée du réseau.
+        
+        Cette méthode calcule la vitesse moyenne d'écoulement dans toutes les
+        conduites du réseau. Elle constitue un des objectifs de l'optimisation
+        multi-objectif pour équilibrer les vitesses et éviter les extrêmes.
+        
+        Formule hydraulique:
+        -------------------
+        V_moyenne = (1/n) × Σ(Q_i / A_i) pour toutes les conduites i
+        
+        Où:
+        - Q_i = débit moyen dans la conduite i (m³/s)
+        - A_i = section de la conduite i = π × (D_i/2)² (m²)
+        - D_i = diamètre de la conduite i (m)
+        - n = nombre de conduites
+        
+        Parameters:
+        -----------
+        resultats : wntr.sim.results.SimulationResults
+            Résultats de simulation contenant les débits temporels.
+        
+        Returns:
+        --------
+        float
+            Vitesse d'écoulement moyenne du réseau (m/s).
+            Valeur optimale typique: 0.8-1.2 m/s
+        
+        Notes:
+        ------
+        - Utilise la valeur absolue des débits (écoulements bidirectionnels)
+        - Les vitesses nulles (diamètre=0) sont ignorées
+        - Objectif d'optimisation: minimiser l'écart aux vitesses optimales
+        """
         try:
+            # Extraction des débits depuis les résultats WNTR
+            # Format: [temps, conduites] - valeurs en m³/s
             debits = resultats.link['flowrate'].values
             vitesses = []
             
+            # Calcul de la vitesse pour chaque conduite
             for i, pipe_name in enumerate(self.reseau.pipe_name_list):
                 pipe = self.reseau.get_link(pipe_name)
-                diametre = pipe.diameter
+                diametre = pipe.diameter  # Diamètre en mètres
+                
+                # Débit moyen temporel pour cette conduite (valeur absolue)
                 debit_moy = np.mean(np.abs(debits[:, i]))
                 
                 if diametre > 0:
-                    vitesse = debit_moy / (np.pi * (diametre/2)**2)
+                    # Formule: V = Q / A avec A = π × (D/2)²
+                    section = np.pi * (diametre / 2) ** 2
+                    vitesse = debit_moy / section
                     vitesses.append(vitesse)
                 else:
-                    vitesses.append(0)
+                    vitesses.append(0)  # Conduite fermée ou inexistante
             
+            # Moyenne des vitesses de toutes les conduites
             return np.mean(vitesses)
+            
         except Exception as e:
             logger.error(f"Erreur calcul vitesses moyennes : {e}")
             return float('inf')
     
     def calculer_ecart_pressions(self, resultats):
-        """Calcul de l'écart-type des pressions (uniformité)"""
+        """
+        Calcule l'écart-type des pressions pour mesurer l'uniformité du service.
+        
+        Cette méthode évalue l'homogénéité de la distribution des pressions dans
+        le réseau. Un écart-type faible indique un service plus uniforme pour
+        tous les usagers, ce qui constitue un objectif d'optimisation.
+        
+        Formule statistique:
+        -------------------
+        σ_p = √[(1/n) × Σ(P_i - P_moyenne)²] pour tous les nœuds i
+        
+        Où:
+        - P_i = pression moyenne temporelle au nœud i (mCE)
+        - P_moyenne = pression moyenne de tous les nœuds (mCE)
+        - n = nombre de nœuds de demande
+        
+        Parameters:
+        -----------
+        resultats : wntr.sim.results.SimulationResults
+            Résultats contenant les pressions temporelles aux nœuds.
+        
+        Returns:
+        --------
+        float
+            Écart-type des pressions moyennes (mCE).
+            Plus cette valeur est faible, plus le service est uniforme.
+        
+        Notes:
+        ------
+        - Calcule d'abord la moyenne temporelle pour chaque nœud
+        - Puis l'écart-type spatial de ces moyennes
+        - Objectif: minimiser les disparités de pression entre zones
+        - Contribue à l'équité du service hydraulique
+        """
         try:
+            # Extraction des pressions depuis les résultats WNTR
+            # Format: [temps, nœuds] - valeurs en mCE (mètres Colonne d'Eau)
             pressions = resultats.node['pressure'].values
+            
+            # Calcul de la pression moyenne temporelle pour chaque nœud
             pressions_moy = np.mean(pressions, axis=0)
+            
+            # Calcul de l'écart-type spatial des pressions moyennes
             ecart_type = np.std(pressions_moy)
+            
             return ecart_type
+            
         except Exception as e:
             logger.error(f"Erreur calcul écart pressions : {e}")
             return float('inf')
@@ -438,10 +760,100 @@ class OptimisationReseau:
 
     # --------------------------------------------------------------------
     # OPTIMISATION MONO‐OBJECTIF
-    # --------------------------------------------------------------------
+    # ====================================================================
+    # ALGORITHME GÉNÉTIQUE MONO-OBJECTIF - MÉTHODE PRINCIPALE
+    # ====================================================================
+    
     def executer_optimisation(self, callback=None, arret_demande=None):
         """
-        (score = pertes + pénalités)
+        Exécute l'optimisation mono-objectif du réseau hydraulique par algorithme génétique.
+        
+        Cette méthode implémente un algorithme génétique standard pour minimiser
+        les pertes de charge totales du réseau tout en respectant les contraintes
+        hydrauliques (pressions et vitesses). Elle utilise la bibliothèque DEAP
+        pour l'implémentation des opérateurs évolutionnaires.
+        
+        Objectif d'optimisation:
+        -----------------------
+        Minimiser: Score = Σ(Pertes_de_charge) + Σ(Pénalités_contraintes)
+        
+        Algorithme génétique utilisé:
+        -----------------------------
+        - Population: TAILLE_POPULATION individus (défaut: 100)
+        - Générations: NOMBRE_GENERATIONS maximum (défaut: 100)
+        - Sélection: Tournoi de taille 5 (pression sélective équilibrée)
+        - Croisement: Deux points (TAUX_CROISEMENT = 0.8)
+        - Mutation: Discrète sur diamètres disponibles (TAUX_MUTATION = 0.2)
+        - Arrêt: Convergence ou nombre max de générations
+        
+        Processus d'optimisation:
+        ------------------------
+        1. Initialisation d'une population aléatoire
+        2. Évaluation de tous les individus
+        3. Pour chaque génération:
+           - Sélection des parents par tournoi
+           - Reproduction par croisement deux points
+           - Mutation discrète des descendants
+           - Évaluation des nouveaux individus
+           - Remplacement de la population
+           - Vérification des critères d'arrêt
+        4. Génération automatique du fichier INP optimisé
+        
+        Parameters:
+        -----------
+        callback : callable, optional
+            Fonction appelée à chaque génération pour mise à jour GUI.
+            Signature: callback(generation_number)
+        arret_demande : callable, optional
+            Fonction retournant True si l'utilisateur demande l'arrêt.
+            Permet l'interruption interactive de l'optimisation.
+        
+        Returns:
+        --------
+        None
+            Les résultats sont stockés dans les attributs de classe:
+            - self.meilleure_solution: Meilleure configuration trouvée
+            - self.historique_fitness: Évolution des scores par génération
+        
+        Raises:
+        -------
+        Exception
+            En cas d'erreur durant l'optimisation (simulation, calcul, etc.)
+            
+        Side Effects:
+        ------------
+        - Met à jour self.meilleure_solution avec la meilleure configuration
+        - Remplit self.historique_fitness avec l'évolution des scores
+        - Génère automatiquement un fichier INP optimisé avec timestamp
+        - Enregistre les logs d'optimisation
+        
+        Critères d'arrêt:
+        -----------------
+        - Nombre maximum de générations atteint
+        - Convergence détectée (pas d'amélioration pendant N générations)
+        - Arrêt demandé par l'utilisateur (via arret_demande)
+        
+        Notes techniques:
+        ----------------
+        - Utilise DEAP pour l'implémentation des opérateurs génétiques
+        - Les diamètres sont encodés comme entiers (mm) dans les chromosomes
+        - La fonction de fitness intègre pénalités pour contraintes violées
+        - Sauvegarde périodique possible selon configuration
+        
+        Examples:
+        ---------
+        >>> opt = OptimisationReseau("reseau.inp")
+        >>> # Optimisation simple
+        >>> opt.executer_optimisation()
+        
+        >>> # Avec callback pour GUI
+        >>> def update_progress(gen):
+        ...     print(f"Génération {gen}")
+        >>> opt.executer_optimisation(callback=update_progress)
+        
+        >>> # Avec possibilité d'arrêt
+        >>> stop_flag = False
+        >>> opt.executer_optimisation(arret_demande=lambda: stop_flag)
         """
         try:
             # Création des types DEAP

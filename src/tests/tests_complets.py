@@ -1,26 +1,68 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Tests complets pour l'optimisation de réseau hydraulique
-Regroupe tous les tests : unitaires, encodage, énergie
+Suite de Tests Complète pour l'Optimisation de Réseaux Hydrauliques
+===================================================================
+
+Ce module contient une suite de tests exhaustive pour valider le bon
+fonctionnement du système d'optimisation de réseaux hydrauliques.
+Il couvre tous les aspects critiques du système : algorithmes, calculs,
+interfaces et robustesse.
+
+La suite de tests comprend:
+--------------------------
+- Tests unitaires des algorithmes génétiques
+- Tests des calculs hydrauliques et formules
+- Tests de gestion des encodages de fichiers
+- Tests des interfaces (GUI, CLI)
+- Tests d'intégration et de régression
+- Tests de robustesse et cas limites
+
+Objectifs des tests:
+-------------------
+- Garantir la fiabilité des calculs hydrauliques
+- Valider la convergence des algorithmes d'optimisation
+- Vérifier la robustesse face aux données corrompues
+- Assurer la compatibilité des formats de fichiers
+- Contrôler la qualité des résultats générés
+
+Classes de test:
+---------------
+- TestOptimisationReseau: Tests de la classe principale
+- TestEncodageFichiers: Tests de gestion des encodages
+- TestCalculsHydrauliques: Tests des formules hydrauliques
+- TestAlgorithmesGenetiques: Tests des opérateurs évolutionnaires
+- TestInterfacesUtilisateur: Tests GUI et CLI
+- TestGenerationRapports: Tests des sorties et visualisations
+
+Usage:
+------
+python -m pytest tests_complets.py -v
+python tests_complets.py  # Exécution directe
+
+Author: Équipe d'Optimisation Hydraulique
+Version: 3.0
+Date: 2025
+License: MIT
 """
 
+# Imports du framework de tests
 import unittest
+from unittest.mock import Mock, patch
+
+# Imports calculs scientifiques et utilitaires
 import numpy as np
+import json
 import tempfile
 import os
 import sys
-import json
 from datetime import timedelta
-from unittest.mock import Mock, patch
 
-# Ajouter le répertoire courant au path pour importer les modules
+# Configuration des chemins d'import
 sys.path.append('.')
-
-import sys
-import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
+# Imports du système à tester
 from core import optimisation, config
 
 

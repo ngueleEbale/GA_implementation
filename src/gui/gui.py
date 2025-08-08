@@ -1,34 +1,170 @@
+# -*- coding: utf-8 -*-
+"""
+Interface Graphique pour l'Optimisation de Réseaux Hydrauliques
+==============================================================
+
+Ce module implémente une interface graphique moderne basée sur Tkinter pour
+le système d'optimisation de réseaux hydrauliques. Il fournit une interface
+intuitive permettant de configurer, lancer et suivre les optimisations mono
+et multi-objectif en temps réel.
+
+L'interface intègre:
+- Configuration des paramètres d'optimisation
+- Sélection et validation des fichiers INP
+- Lancement et contrôle des optimisations
+- Suivi en temps réel avec barres de progression
+- Affichage des logs et résultats
+- Gestion des arrêts d'urgence
+
+Classes principales:
+-------------------
+- Application: Interface principale Tkinter
+- TextRedirector: Redirection des sorties console vers l'interface
+
+Author: Équipe d'Optimisation Hydraulique
+Version: 3.0
+Date: 2025
+License: MIT
+"""
+
+# Imports système et configuration des chemins
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
+# Imports interface graphique
 import tkinter as tk
 from tkinter import filedialog, messagebox, scrolledtext, ttk
 from tkinter import font as tkfont
-from core import optimisation, config
-import json
-from datetime import datetime
-import threading
 
-# --------------------------------------------------
-# 1) Classe pour rediriger stdout/stderr
-# --------------------------------------------------
+# Imports logique métier
+from core import optimisation, config
+
+# Imports utilitaires
+import json
+import threading
+from datetime import datetime
+
+# ========================================================================
+# CLASSE UTILITAIRE - REDIRECTION DES SORTIES CONSOLE
+# ========================================================================
+
 class TextRedirector:
+    """
+    Classe utilitaire pour rediriger stdout/stderr vers un widget Tkinter.
+    
+    Cette classe permet d'afficher en temps réel dans l'interface graphique
+    tous les messages normalement destinés à la console, offrant une
+    expérience utilisateur intégrée et professionnelle.
+    
+    Attributes:
+    -----------
+    text_widget : tk.Text
+        Widget Tkinter où rediriger les sorties textuelles
+    
+    Methods:
+    --------
+    write(message): Écrit un message dans le widget
+    flush(): Méthode requise pour l'interface file-like
+    
+    Examples:
+    ---------
+    >>> text_area = tk.Text(root)
+    >>> redirector = TextRedirector(text_area)
+    >>> sys.stdout = redirector  # Redirection des prints
+    """
+    
     def __init__(self, text_widget):
+        """
+        Initialise le redirecteur avec un widget de destination.
+        
+        Parameters:
+        -----------
+        text_widget : tk.Text or tk.scrolledtext.ScrolledText
+            Widget Tkinter où afficher les messages redirigés
+        """
         self.text_widget = text_widget
 
     def write(self, message):
+        """
+        Écrit un message dans le widget et fait défiler automatiquement.
+        
+        Cette méthode simule l'interface d'un fichier pour permettre
+        la redirection de sys.stdout et sys.stderr.
+        
+        Parameters:
+        -----------
+        message : str
+            Message à afficher dans le widget
+        """
         self.text_widget.insert(tk.END, message)
-        self.text_widget.see(tk.END)
-        self.text_widget.update_idletasks()
+        self.text_widget.see(tk.END)  # Auto-scroll vers la fin
+        self.text_widget.update_idletasks()  # Mise à jour immédiate
 
     def flush(self):
+        """
+        Méthode vide requise pour l'interface file-like.
+        
+        Tkinter gère automatiquement l'affichage, donc aucune action
+        spécifique n'est nécessaire pour le flush.
+        """
         pass
 
-# --------------------------------------------------
-# 2) Classe principale de l'application Tkinter
-# --------------------------------------------------
+# ========================================================================
+# CLASSE PRINCIPALE - INTERFACE GRAPHIQUE D'OPTIMISATION
+# ========================================================================
+
 class Application(tk.Tk):
+    """
+    Interface Graphique Principale pour l'Optimisation de Réseaux Hydrauliques
+    =========================================================================
+    
+    Cette classe implémente une interface Tkinter moderne et complète pour
+    l'optimisation de réseaux hydrauliques. Elle offre une expérience utilisateur
+    intuitive avec des onglets organisés, des contrôles en temps réel et un
+    suivi détaillé des optimisations.
+    
+    Fonctionnalités principales:
+    ---------------------------
+    - Interface à onglets pour organisation claire
+    - Configuration interactive des paramètres
+    - Sélection et validation des fichiers INP
+    - Optimisation mono et multi-objectif
+    - Suivi temps réel avec barres de progression
+    - Contrôles d'arrêt d'urgence
+    - Affichage intégré des logs et résultats
+    - Sauvegarde/chargement des configurations
+    
+    Architecture de l'interface:
+    ---------------------------
+    - Onglet 1: Sélection et configuration du réseau
+    - Onglet 2: Paramètres d'optimisation avancés
+    - Onglet 3: Lancement et suivi des optimisations
+    - Onglet 4: Affichage des logs et résultats
+    
+    Gestion de la concurrence:
+    -------------------------
+    - Optimisations exécutées dans des threads séparés
+    - Interface reste réactive pendant les calculs
+    - Mécanismes d'arrêt sécurisés
+    - Mise à jour temps réel des barres de progression
+    
+    Attributes:
+    -----------
+    optimisation_en_cours : bool
+        Indicateur d'état de l'optimisation
+    thread_optimisation : threading.Thread
+        Thread d'exécution de l'optimisation
+    arret_demande : bool
+        Flag pour demander l'arrêt de l'optimisation
+    opt : optimisation.OptimisationReseau
+        Instance du moteur d'optimisation
+    
+    Examples:
+    ---------
+    >>> app = Application()
+    >>> app.mainloop()  # Lancement de l'interface
+    """
     def __init__(self):
         super().__init__()
         self.title("Optimisation d'un réseau hydraulique - Interface avancée")

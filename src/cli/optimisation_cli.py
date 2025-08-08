@@ -1,21 +1,52 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Interface en ligne de commande pour l'optimisation de réseau hydraulique
-Utilise la logique d'optimisation depuis optimisation.py
+Interface en Ligne de Commande pour l'Optimisation de Réseaux Hydrauliques
+==========================================================================
+
+Ce module fournit une interface en ligne de commande complète et professionnelle
+pour l'optimisation de réseaux hydrauliques. Il permet d'exécuter les optimisations
+mono et multi-objectif depuis le terminal avec une configuration flexible.
+
+L'interface CLI est particulièrement adaptée pour:
+- L'automatisation et les scripts batch
+- L'exécution sur serveurs sans interface graphique
+- L'intégration dans des workflows de calcul
+- Les optimisations de longue durée en arrière-plan
+
+Fonctionnalités:
+---------------
+- Optimisation mono-objectif (pertes de charge)
+- Optimisation multi-objectif NSGA-II (pertes, vitesses, pressions)
+- Configuration flexible via arguments ou fichier JSON
+- Génération automatique de rapports et visualisations
+- Support des formats de sortie multiples
+- Logging détaillé et gestion d'erreurs robuste
+
+Usage typique:
+-------------
+python optimisation_cli.py reseau.inp --mono --generations 100
+python optimisation_cli.py reseau.inp --multi --config params.json
+
+Author: Équipe d'Optimisation Hydraulique
+Version: 3.0
+Date: 2025
+License: MIT
 """
 
+# Imports système et arguments
 import argparse
 import sys
 import os
 import json
 from datetime import datetime
 
-# Import de la logique d'optimisation
+# Configuration des chemins d'import
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
+# Imports logique métier
 from core import optimisation, config
 
 
