@@ -10,7 +10,7 @@ scipy>=1.7.0
 
 # Analyse de réseau hydraulique
 wntr>=0.4.0
-epanet>=2.2
+#epanet>=2.2
 
 # Génération de rapports
 xlsxwriter>=3.0.0

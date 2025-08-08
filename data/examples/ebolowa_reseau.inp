@@ -1,0 +1,241 @@
+[TITLE]
+
+
+[JUNCTIONS]
+;ID Noeud              	Altitude     	Demande Base   	Courbe Modulation
+ N1              	601.17      	0           	                	;
+ N2              	600.98      	0           	                	;
+ N3              	599.85      	0           	                	;
+ N4              	598.37      	0           	                	;
+ N5              	600.31      	0           	                	;
+ N6              	600         	0           	                	;
+ N7              	597.64      	0           	                	;
+ N13             	594.08      	0           	                	;
+ N12             	592.92      	0           	                	;
+ N11             	589.83      	0           	                	;
+ N10             	582         	0           	                	;
+ N16             	586.41      	0           	                	;
+ N15             	576         	0           	                	;
+ N14             	589         	0           	                	;
+ N17             	596.45      	0           	                	;
+ BF1             	574         	1           	                	;
+ BF2             	593         	1           	                	;
+ BF3             	597.25      	1           	                	;
+ BF4             	600.96      	1           	                	;
+ BF5             	594         	1           	                	;
+ BF6             	601         	1           	                	;
+ BF7             	600         	1           	                	;
+ BF8             	597         	1           	                	;
+ BF9             	586         	1           	                	;
+ BF10            	589         	1           	                	;
+ BF11            	592.95      	1           	                	;
+ BF12            	592.98      	1           	                	;
+ BF13            	593.5       	1           	                	;
+ BF14            	590         	1           	                	;
+ BF15            	600         	1           	                	;
+ N9              	599.05      	0           	                	;
+ N8              	596.51      	0           	                	;
+
+[RESERVOIRS]
+;ID Noeud              	Charge Tot   	Courbe Modulation
+ F1              	510         	                	;
+
+[TANKS]
+;ID Noeud              	Altitude   	Niv Init   	Niv Min    	Niv Max    	Diamètre    	VolMin      	Courbe Vol
+ R               	611         	1.1         	1           	4           	8           	0           	                	;
+
+[PIPES]
+;ID Arc              	Noeud1           	Noeud2           	Longueur      	Diamètre    	Rugosité   	PerSing   	État
+ N1-N2           	N1              	N2              	131         	160         	0.0015      	0.1         	Open  	;
+ N1-N5           	N1              	N5              	150         	140         	0.0015      	0.1         	Open  	;
+ N2-N3           	N2              	N3              	90          	160         	0.0015      	0.1         	Open  	;
+ N2-N20          	N2              	N17             	208         	75          	0.0015      	0.1         	Open  	;
+ N3-N4           	N3              	N4              	140         	40          	0.0015      	0.1         	Open  	;
+ N6-N7           	N6              	N7              	198         	100         	0.0015      	0.1         	Open  	;
+ N1-N6           	N1              	N6              	263         	125         	0.0015      	0.1         	Open  	;
+ N6-N15          	N6              	N11             	258         	100         	0.0015      	0.1         	Open  	;
+ N13-N14         	N13             	N14             	334         	75          	0.0015      	0.1         	Open  	;
+ N10-N16         	N10             	N16             	693         	75          	0.0015      	0.1         	Open  	;
+ N13-N18         	N13             	N15             	956         	75          	0.0015      	0.1         	Open  	;
+ R-N1            	R               	N1              	98          	250         	0.0015      	0.1         	Open  	;
+ N13-BF2         	N13             	BF2             	200         	63          	0.0015      	0.1         	Open  	;
+ N2-BF4          	N2              	BF4             	45          	63          	0.0015      	0.1         	Open  	;
+ N17-BF5         	N17             	BF5             	100         	63          	0.0015      	0           	Open  	;
+ N1-BF6          	N1              	BF6             	131.5       	63          	0.0015      	0.1         	Open  	;
+ N13-BF13        	N13             	BF13            	167         	63          	0.0015      	0.1         	Open  	;
+ N14-BF12        	N12             	BF12            	120         	63          	0.0015      	0.1         	Open  	;
+ N14-BF14        	N14             	BF14            	100         	63          	0.0015      	0.1         	Open  	;
+ N15-BF1         	N15             	BF1             	500         	63          	0.0015      	0           	Open  	;
+ N11-BF10        	N11             	BF10            	98          	63          	0.0015      	1.1         	Open  	;
+ N6-BF7          	N6              	BF7             	99          	63          	0.0015      	0.1         	Open  	;
+ N7-BF8          	N7              	BF8             	135.5       	63          	0.0015      	0.1         	Open  	;
+ N12-BF11        	N12             	BF11            	210.5       	63          	0.0015      	0.1         	Open  	;
+ N5-BF15         	N5              	BF15            	111         	63          	0.0015      	0.1         	Open  	;
+ N16-BF9         	N16             	BF9             	138.5       	63          	0.0015      	0.1         	Open  	;
+ N4-N12          	N4              	N12             	137         	75          	0.0015      	0.1         	Open  	;
+ N12-N11         	N12             	N11             	421         	63          	0.0015      	0.1         	Open  	;
+ N12-N13         	N12             	N13             	259         	40          	0.0015      	0.1         	Open  	;
+ N5-N6           	N5              	N6              	156         	75          	0.0015      	0.1         	Open  	;
+ N5-N4           	N5              	N4              	225         	100         	0.0015      	0.1         	Open  	;
+ N7-N10          	N7              	N10             	271         	75          	0.0015      	0.1         	Open  	;
+ N10-N11         	N10             	N11             	177         	40          	0.0015      	0.1         	Open  	;
+ N3-N9           	N3              	N9              	77          	125         	0.0015      	0.1         	Open  	;
+ N9-N8           	N9              	N8              	145         	110         	0.0015      	0.1         	Open  	;
+ N8-N13          	N8              	N13             	84          	100         	0.0015      	0.1         	Open  	;
+ N4-N8           	N4              	N8              	181         	40          	0.0015      	0.1         	Open  	;
+ N8-BF3          	N8              	BF3             	100         	63          	0.0015      	0.1         	Open  	;
+
+[PUMPS]
+;ID Arc              	NoeudAsp           	NoeudDéch           	Paramètres
+ 1               	F1              	R               	HEAD P1	;
+
+[VALVES]
+;ID Arc              	NoeudAmont           	NodeAval           	Diamètre    	Type	Consigne  	PertSing   
+
+[TAGS]
+
+[DEMANDS]
+;ID Noeud        	Demande Base 	Courbe Modulation  	Catégorie
+
+[STATUS]
+;ID Arc              	État/Consigne
+
+[PATTERNS]
+;ID Modulation      	Multiplicateurs
+
+[CURVES]
+;ID Courbe        	Valeur X     	Valeur Y
+;PUMP:  
+ P1              	15          	193         
+;PUMP:  
+ P2              	4.72        	206         
+
+[CONTROLS]
+
+[RULES]
+
+[ENERGY]
+ Global Efficiency  	75
+ Global Price       	0
+ Demand Charge      	0
+
+[EMITTERS]
+;ID Noeud        	Coefficient
+
+[QUALITY]
+;ID Noeud            	Qualité Initiale
+ F1              	1
+ R               	0
+
+[SOURCES]
+;ID Noeud            	Type        	Qualité     	Courbe Modul
+
+[REACTIONS]
+;Type     	Tuyau/Réservoir       	Coefficient
+
+
+[REACTIONS]
+ Order Bulk            	1
+ Order Tank            	1
+ Order Wall            	1
+ Global Bulk           	-1.0
+ Global Wall           	0
+ Limiting Potential    	0
+ Roughness Correlation 	0
+
+[MIXING]
+;ID Réservoir      	Modèle        	Fraction Mélange
+
+[TIMES]
+ Duration           	240:00 
+ Hydraulic Timestep 	1:00 
+ Quality Timestep   	0:05 
+ Pattern Timestep   	1:00 
+ Pattern Start      	0:00 
+ Report Timestep    	1:00 
+ Report Start       	0:00 
+ Start ClockTime    	12 am
+ Statistic          	None
+
+[REPORT]
+ Status             	No
+ Summary            	No
+ Page               	0
+
+[OPTIONS]
+ Units              	LPS
+ Headloss           	D-W
+ Specific Gravity   	1
+ Viscosity          	1
+ Trials             	40
+ Accuracy           	0.001
+ Unbalanced         	Continue 10
+ Pattern            	1
+ Demand Multiplier  	1.0
+ Emitter Exponent   	0.5
+ Quality            	Chlore mg/l
+ Diffusivity        	1
+ Tolerance          	0.01
+
+[COORDINATES]
+;ID Noeud            	Coord X         	Coord Y
+ N1              	805037          	293955          
+ N2              	804953          	293859          
+ N3              	804862          	293816          
+ N4              	804814          	293928          
+ N5              	804969          	294034          
+ N6              	805143          	294141          
+ N7              	805296          	294239          
+ N13             	804576          	293871          
+ N12             	804704          	294089          
+ N11             	805015          	294348          
+ N10             	805151          	294470          
+ N16             	805606          	294933          
+ N15             	804498          	293042          
+ N14             	804374          	294074          
+ N17             	805067          	293692          
+ BF1             	804504          	293025          
+ BF2             	804487          	293567          
+ BF3             	804654          	293844          
+ BF4             	804906          	293851          
+ BF5             	805074          	293710          
+ BF6             	805115          	293984          
+ BF7             	805215          	294195          
+ BF8             	805239          	294339          
+ BF9             	805450          	294837          
+ BF10            	805007          	294349          
+ BF11            	804806          	294197          
+ BF12            	804669          	294031          
+ BF13            	804460          	293915          
+ BF14            	804425          	294029          
+ BF15            	804907          	293983          
+ N9              	804784.673587929	293771.637031217
+ N8              	804615.415523413	293846.110579605
+ F1              	804460          	293075          
+ R               	805113          	293906          
+
+[VERTICES]
+;ID Arc            	Coord X         	Coord Y
+ N6-N7           	805232.592447024	294168.847016178
+ N6-N7           	805281.643989354	294191.32897308 
+ N6-N7           	805302.082131992	294207.67948719 
+ N1-N6           	805144.708433681	294021.692389187
+ N1-N6           	805165.146576319	294035.999089033
+ N1-N6           	805177.409461902	294056.437231671
+ N1-N6           	805173.321833374	294089.138259891
+ N13-N14         	804485.423629153	293941.186681511
+ N13-N14         	804476.381169427	294009.429503604
+ N13-N14         	804468.205912372	294027.823831978
+ N13-N18         	804392.834699948	293438.494355909
+ N13-N18         	804403.053771267	293285.208286126
+
+[LABELS]
+;Coord X         	Coord Y         	Texte et Noeud d´Ancrage
+
+[BACKDROP]
+ DIMENSIONS     	804312.4        	292929.6        	805667.6        	295028.4        
+ UNITS          	Meters
+ FILE           	
+ OFFSET         	0               	0               
+
+[END]
